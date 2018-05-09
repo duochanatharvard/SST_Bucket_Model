@@ -25,6 +25,7 @@ for var = 2:3
     % read data **
     % ************
     varname = var_list{var};
+    disp(varname);
     clear('temp','temp_clim','temp_clim2','temp_mon','temp_mon_clim','temp_hour_clim')
     for i = 1:88
         
@@ -43,6 +44,7 @@ for var = 2:3
     % ************************
     % remove the leap years **
     % ************************
+    disp('remove leap years');
     logic = false(1,size(temp,3));
     for lpyr = 1:7
         logic((59 + (4*(lpyr) - 1)*365)*8 + [1:8]) = true;
@@ -52,6 +54,7 @@ for var = 2:3
     % ****************************
     % compute daily climatology **
     % ****************************
+    disp('compute daily climatology');
     temp_clim = nan(size(longitude,1),size(latitude,1),365*8);
     for tz = 1:365*8
         temp_clim(:,:,tz) = nanmean(temp(:,:,tz:365*8:end),3);
@@ -75,6 +78,7 @@ for var = 2:3
     % ***************************
     % compute the monthly mean **
     % ***************************
+    disp('compute monthly climatology');
     temp_mon_clim = nan(size(longitude,1),size(latitude,1),96);
     mon_list = [31 28 31 30 31 30 31 31 30 31 30 31];
     mon_cum  = cumsum([0 mon_list])*8;
@@ -89,6 +93,7 @@ for var = 2:3
     % *******************************************
     % generate hourly data using interpolation **
     % *******************************************
+    disp('compute hourly climatology');
     clear('temp_hour_clim')
     temp_hour_clim = nan(size(longitude,1),size(latitude,1),24,12);
     for lon = 1:180
@@ -104,6 +109,7 @@ for var = 2:3
     % ************
     % save data **
     % ************
+    disp('saving data');
     dir_save = BKT_OI('save_driver');
     save([dir_save,'ERI-interim_2X2_',varname,'_1985_2014.mat'],'longitude','latitude','temp_hour_clim','-v7.3');
 end
@@ -119,6 +125,7 @@ var_list = {'u10','v10'};
 % ************
 % read data **
 % ************
+disp('Wind speed');
 for i = 1:88
     
     tic;
@@ -145,6 +152,7 @@ latitude = ncread(file_load,'latitude');
 % ************************
 % remove the leap years **
 % ************************
+disp('remove leap years');
 logic = false(1,size(temp,3));
 for lpyr = 1:7
     logic((59 + (4*(lpyr) - 1)*365)*8 + [1:8]) = true;
@@ -155,6 +163,7 @@ temp(:,:,logic) = [];
 % ****************************
 % compute daily climatology **
 % ****************************
+disp('compute daily climatology');
 temp_clim = nan(size(longitude,1),size(latitude,1),365*8);
 for tz = 1:365*8
     temp_clim(:,:,tz) = nanmean(temp(:,:,tz:365*8:end),3);
@@ -166,6 +175,7 @@ clear('temp_clim','temp')
 % ***************************
 % compute the monthly mean **
 % ***************************
+disp('compute monthly climatology');
 temp_mon_clim = nan(size(longitude,1),size(latitude,1),96);
 for mon = 1:12
     clear('temp_mon')
@@ -178,6 +188,7 @@ end
 % *******************************************
 % generate hourly data using interpolation **
 % *******************************************
+disp('compute hourly climatology');
 clear('temp_hour_clim')
 temp_hour_clim = nan(size(longitude,1),size(latitude,1),24,12);
 for lon = 1:180
@@ -189,5 +200,7 @@ for lon = 1:180
         end
     end
 end
+
+disp('saving data');
 dir_save = BKT_OI('save_driver');
 save([dir_save,'ERI-interim_2X2_Wnd_spd_1985_2014.mat'],'longitude','latitude','temp_hour_clim','-v7.3');
