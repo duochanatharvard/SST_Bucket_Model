@@ -13,7 +13,7 @@ driver_ERA = 1;
 s_environment = 6;
 deck_time  = 900;              % here it is directly set in the model input
 solar_shading = 0.6;           % here it is directly set in the model input
-cx = 1:72;                     % This is over the 60S-60N 
+cx = 1:72;                     % This is over the 60S-60N
 cy = 7:30;
 
 % ######################################
@@ -42,16 +42,18 @@ for bucket_size = [0.5:0.1:2]
     % ***************************
     % This is to run the model **
     % ***************************
-    
+
     SST_exp  = BKT_MD_STP_2_MD_CANVAS_GRD_SIZ(true_SST(cx,cy,:,:),true_AT(cx,cy,:,:),...
         e_air(cx,cy,:,:),u_environment(cx,cy,:,:),s_environment,Qs(cx,cy,:,:),...
         direct_ratio(cx,cy,:,:),900,solar_shading,zenith_angle(cx,cy,:,:),0.163*bucket_size,0.14*bucket_size);
     SST_exp = squeeze(nanmean(nanmean(SST_exp,1),2));
     SST_exp = squeeze(nanmean(nanmean(SST_exp,1),2));
-    
+
     SST_save(ct,:) = SST_exp;
 end
 
+dir_save = BKT_OI('save_output');
+save([dir_save,'nation_relative_biases.mat'],'SST_save','SST_ref');
 % ##########################################################
 % Analysis model results and generate figures             ##
 % ##########################################################
