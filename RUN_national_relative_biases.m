@@ -57,27 +57,32 @@ save([dir_save,'nation_relative_biases.mat'],'SST_save','SST_ref');
 % ##########################################################
 % Analysis model results and generate figures             ##
 % ##########################################################
-figure(1); clf;
+figure(1); clf; hold on;
 
 pic = SST_save - SST_ref(end);
 
-contourf(0:1:15,0.5:0.1:2,pic,[-2:0.2:2],'w','linewi',2)
-caxis([-1 1]*2)
-color_shuang([.08 .03;.48 .6],[0.9 .2],[.7 .9],20,0);
-CDF_panel([0 15 0.5 2],'',{},'Exposure time (minutes)','Bucket size relative to the reference bucket');
-h = colorbar;
-ylabel(h,'Bias relative to 5 minute exposure of the reference bucket (^oC)')
+if 0,   % This is the colorful version
+    contourf(0:1:15,0.5:0.1:2,pic,[-2:0.2:2],'w','linewi',2)
+    caxis([-1 1]*2)
+    color_shuang([.08 .03;.48 .6],[0.9 .2],[.7 .9],20,0);
+    h = colorbar;
+    ylabel(h,'Bias relative to 5 minute exposure of the reference bucket (^oC)')
+else
+    [C,h] = contour(0:1:15,0.5:0.1:2,pic,[-2:0.2:2],'k','linewi',1,'ShowText','on');
+    clabel(C,h,'FontSize',15,'Color','k')
+end
 
+CDF_panel([0 15 0.5 2],'',{},'Exposure time (minutes)','Relative bucket size');
 clear('h')
-col = jet(7)*.85;
+col = jet(7)*.92;
 nation_list = [0.0142 0.0165 0.0424 -0.0631 0.1054 -0.1051 -0.1348];
 for i = 1:7
     [~,h(i)] = contour(0:1:15,0.5:0.1:2,pic,[1 1]*nation_list(i),'color',col(i,:),'linewi',3);
 end
 
-set(gca,'xtick',[0:2:14],'ytick',[0.5:0.25:2])
-legend(h,{'DE','UK','US','JP','RU','NL','Deck 156'},'fontsize',17',...
+set(gca,'xtick',[0:2:14],'ytick',[0.5:0.25:2],'fontsize',12)
+legend(h,{'DE','UK','US','JP','RU','NL','Deck 156'},'fontsize',12,...
     'fontweight','bold','location','northwest')
-plot(5,1,'rp','markersize',20,'markerfacecolor','r')
+plot(5,1,'rp','markersize',15,'markerfacecolor','r')
 
-CDF_save(1,'png',500,'/Users/zen/Dropbox/Research/SST_bucket_regional_bias/SST_20180420_Method/Figures/20180509_Bucket_model.png');
+CDF_save(1,'png',500,'/Users/zen/Dropbox/Research/SST_bucket_regional_bias/SST_20180420_Method/Figures/20180509_Bucket_model_2.png');
