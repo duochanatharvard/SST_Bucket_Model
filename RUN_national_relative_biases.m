@@ -75,7 +75,8 @@ end
 CDF_panel([0 15 0.5 2],'',{},'Exposure time (minutes)','Relative bucket size');
 clear('h')
 col = jet(7)*.92;
-nation_list = [0.0142 0.0165 0.0424 -0.0631 0.1054 -0.1051 -0.1348];
+% nation_list = [0.0142 0.0165 0.0424 -0.0631 0.1054 -0.1051 -0.1348];
+nation_list = [0.01 0.02 0.03 -0.06 0.10 -0.10 -0.12];
 for i = 1:7
     [~,h(i)] = contour(0:1:15,0.5:0.1:2,pic,[1 1]*nation_list(i),'color',col(i,:),'linewi',3);
 end
