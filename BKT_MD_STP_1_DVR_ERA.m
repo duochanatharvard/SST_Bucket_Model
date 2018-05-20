@@ -19,7 +19,7 @@ dir_load  = BKT_OI('load_ERA');
 file_load = [dir_load,'bucket_model_environment_1985_2014.nc'];
 var_list = {'ssrd','d2m','t2m'};
 
-for var = 2:3
+for var = 1:3
     
     % ************
     % read data **
