@@ -76,7 +76,8 @@ CDF_panel([0 15 0.5 2],'',{},'Exposure time (minutes)','Relative bucket size');
 clear('h')
 col = jet(7)*.92;
 % nation_list = [0.0142 0.0165 0.0424 -0.0631 0.1054 -0.1051 -0.1348];
-nation_list = [0.01 0.02 0.03 -0.06 0.10 -0.10 -0.12];
+% nation_list = [0.01 0.02 0.03 -0.06 0.10 -0.10 -0.12];
+nation_list = [0.0120   0.0234    0.0384   -0.0400    0.0860   -0.0954   -0.1224];
 for i = 1:7
     [~,h(i)] = contour(0:1:15,0.5:0.1:2,pic,[1 1]*nation_list(i),'color',col(i,:),'linewi',3);
 end
@@ -86,4 +87,5 @@ legend(h,{'DE','UK','US','JP','RU','NL','Deck 156'},'fontsize',12,...
     'fontweight','bold','location','northwest')
 plot(5,1,'rp','markersize',15,'markerfacecolor','r')
 
-CDF_save(1,'png',500,'/Users/zen/Dropbox/Research/SST_bucket_regional_bias/SST_20180420_Method/Figures/20180509_Bucket_model_2.png');
+CDF_save(1,'png',500,['/Users/zen/Dropbox/Research/SST_bucket_regional_bias/',...
+    'SST_20180420_Method/Figure6/20180525_Bucket_model_case_2.png']);
