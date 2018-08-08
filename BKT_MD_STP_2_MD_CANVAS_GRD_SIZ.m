@@ -93,7 +93,7 @@ function [SST_out] = BKT_MD_STP_2_MD_CANVAS_GRD_SIZ(true_SST,true_AT,e_air,u_env
     temp_base  = A_base .* (Cs .* (1-cover_top));
 
 
-    for t = 1:time_step-1
+    for t = 1:time_step
 
         e_bucket = 6.112 * exp(17.67 * (SST - 273.15)./(SST - 29.65)) .* 0.98;
 
