@@ -1,4 +1,6 @@
-function [SST_out] = BKT_MD_STP_2_MD_CANVAS_GRD_SIZ(true_SST,true_AT,e_air,u_environment,s_environment,Cs,direct_ratio,deck_time,solar_shading,zenith_angle,diameter,depth)
+function [SST_out] = BKT_MD_STP_2_MD_CANVAS_GRD_SIZ(true_SST,true_AT,e_air,...
+    u_environment,s_environment,Cs,direct_ratio,deck_time,solar_shading,...
+    zenith_angle,diameter,depth,exp_id,mass_bucket)
 
     % Parameter of computation --------------------------------------------
     dt = 1;                    % unit: s
@@ -12,22 +14,30 @@ function [SST_out] = BKT_MD_STP_2_MD_CANVAS_GRD_SIZ(true_SST,true_AT,e_air,u_env
 
     % Parameters of the bucket --------------------------------------------
     cp_bucket         = 3900;
-    mass_bucket       = 0.2;
+    % mass_bucket       = 0.25;
     leakage_rate_haul = 0.01;  % unit: m/min
     leakage_rate_deck = 0.005;
-    % diameter          = 0.163;
-    % depth             = 0.14;
+    % diameter        = 0.163;
+    % depth           = 0.14;
     albedo_bucket     = 0.2;
-    cover_top         = 0.5;
+    cover_top         = 1;
     shading           = solar_shading;
 
     % Parameter of measurement --------------------------------------------
     t_haul = 60;
     t_deck = deck_time;
-    u_shield_haul = 0.6;
-    u_shield_deck = 0.4;
-    s_shield_haul = 1;
-    s_shield_deck = 0.67;
+    if exp_id == 1,
+        disp('less exposure')
+        u_shield_haul = 0.6;
+        u_shield_deck = 0.25;
+        s_shield_haul = 1;
+        s_shield_deck = 0.42;
+    else
+        u_shield_haul = 0.6;
+        u_shield_deck = 0.4;
+        s_shield_haul = 1;
+        s_shield_deck = 0.67;
+    end
     water_amount = 35;     % in the thermalmeter, unit: gram
 
     % Term Management -----------------------------------------------------
@@ -59,23 +69,17 @@ function [SST_out] = BKT_MD_STP_2_MD_CANVAS_GRD_SIZ(true_SST,true_AT,e_air,u_env
     mass = A_base .* depth .* density;  % unit: kg
 
     % Sensiable heat flux coefficient -------------------------------------
-    if Re_haul < 1000,
-        h_cycle_haul = 2.8 * (u0_haul./diameter).^0.5;
-    else
-        h_cycle_haul = 4.3 * ((u0_haul).^(0.6))./((diameter).^(0.4));
-    end
-    if Re_deck < 1000,
-        h_cycle_deck = 2.8 * (u0_deck./diameter).^0.5;
-    else
-        h_cycle_deck = 4.3 * ((u0_deck).^(0.6))./((diameter).^(0.4));
-    end
+    h_cycle_haul = 2.8 * (u0_haul./diameter).^0.5 .* (Re_haul < 1000) + ...
+        4.3 * ((u0_haul).^(0.6))./((diameter).^(0.4)) .* (Re_haul >= 1000) ;
+    h_cycle_deck = 2.8 * (u0_deck./diameter).^0.5 .* (Re_deck < 1000) + ...
+        4.3 * ((u0_deck).^(0.6))./((diameter).^(0.4)) .* (Re_deck >= 1000);
     h_base_haul = 4.3 * (u0_haul./diameter).^0.5;
     h_base_deck = 4.3 * (u0_deck./diameter).^0.5;
 
     % ---------------------------------------------------------------------
     % Compute the temperature in the bucket -------------------------------
     time_step = (t_haul + t_deck) / dt;
-    time_out  = (t_haul + t_deck) / 60;
+    time_out  = (t_haul + t_deck) / 30 + 1;
     
     % Set initial condition -----------------------------------------------
     SST = true_SST;
@@ -133,12 +137,12 @@ function [SST_out] = BKT_MD_STP_2_MD_CANVAS_GRD_SIZ(true_SST,true_AT,e_air,u_env
 
         SST = SST + dTdt * dt;
         
-        if rem(t*dt,60) == 0,
+        if rem(t*dt,30) == 0,
             ct_out = ct_out + 1;
             SST_out(:,:,:,:,ct_out) = SST;
         end
 
-        if rem(t*dt,10) == 0,
+        if rem(t*dt,30) == 0,
             disp([num2str(t*dt),' seconds finished'])
         end
     end
