@@ -65,6 +65,7 @@ end
 readme = 'This version have the on-deck time bug fixed, and the global average is weighted by area';
 dir_save = BKT_OI('save_output');
 save([dir_save,'nation_relative_biases_V2.mat'],'SST_save','SST_ref');
+
 % ##########################################################
 % Analysis model results and generate figures             ##
 % ##########################################################
