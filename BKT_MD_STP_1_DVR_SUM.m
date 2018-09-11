@@ -106,6 +106,11 @@ for varname = 1:4
     save(file_save,'clim_final','-v7.3');
 end
 
+
+%%
+yr_start = 1973;
+yr_end   = 2002;
+
 % #######################################
 % ICOADS3.0 5X5 diurnal amplitude (DA) ##
 % #######################################
@@ -115,7 +120,7 @@ do_more_samples = 0;
 
 clear('CLIM_DA')
 CLIM_DA = nan(72,36,12,6);
-for varname = 1:6
+for varname = [1:4 6]
     
     % *************
     % read files **
@@ -125,8 +130,8 @@ for varname = 1:6
         file_load = [dir_ICOADS,'DA_',var_list{varname},...
             '_Gridded_BCK_do_more_samples_',num2str(do_more_samples),'.mat'];
         load(file_load,'DA_WM','DA_NUM')
-        temp_da = DA_WM(:,:,(1950-1850)*12+1:(1990-1849)*12);
-        temp_num = DA_NUM(:,:,(1950-1850)*12+1:(1990-1849)*12);
+        temp_da = DA_WM(:,:,(yr_start-1850)*12+1:(yr_end-1849)*12);
+        temp_num = DA_NUM(:,:,(yr_start-1850)*12+1:(yr_end-1849)*12);
     else
         file_load = [dir_ICOADS,'DA_',var_list{varname},...
             '_Gridded_BUOY_do_more_samples_',num2str(do_more_samples),'.mat'];
@@ -177,7 +182,7 @@ for varname = 1:6
             end
         end
         temp_int(MASK == 0) = NaN;
-        temp_int = smooth2CD(temp_int);
+        temp_int = CDC_smooth2(temp_int);
         
         % *******************************
         % Fill latitude with no values **
@@ -210,20 +215,20 @@ clear('MASK','mask','mon','tem','tem_2','tem_lat','temp_clim','temp_int','temp_m
 % #######################################
 clear('CLIM_DM')
 CLIM_DM = nan(72,36,12,6);
-for varname = 1:5
+for varname = 1:4
     
     % ************
     % read data **
     % ************
-    file_load = [dir_ICOADS,'SHIP_GRID_C0_',var_list{varname},'.mat'];
+    file_load = [dir_ICOADS,'BCK_GRID_C0_',var_list{varname},'_1950_2014.mat'];
     load(file_load,'DATA','DATA_NUM')
     
     % ************************
     % subset 1950-1990 data **
     % ************************
     clear('temp','temp_num')
-    temp_dm = DATA(:,:,:,[1950:1990]-1799,:);
-    temp_num = DATA_NUM(:,:,:,[1950:1990]-1799,:);
+    temp_dm = DATA(:,:,:,[yr_start:yr_end]-1949,:);
+    temp_num = DATA_NUM(:,:,:,[yr_start:yr_end]-1949,:);
 
     % ****************
     % daily average **
@@ -260,7 +265,7 @@ for varname = 1:5
             end
         end
         temp_int(MASK == 0) = NaN;
-        temp_int = smooth2CD(temp_int);
+        temp_int = CDC_smooth2(temp_int);
         
         CLIM_DM(:,:,mon,varname) = temp_int;
     end
@@ -276,7 +281,7 @@ CLIM_DM(:,:,:,varname) = OI_month;
 % ############################################
 % combine daily mean with the diurnal cycle ##
 % ############################################
-for varname = 1:6
+for varname = 1:4
     
     % **********************************
     % read data and the diurnal shape **
@@ -313,9 +318,11 @@ for varname = 1:6
     
     % ************
     % save data **
-    % ************
+    % ************Backup
+    
     if varname < 6,
-        file_save = [BKT_OI('save_driver'),'ICOADS_5X5_',var_list{varname},'_1950-1990.mat'];
+        file_save = [BKT_OI('save_driver'),'ICOADS_5X5_',var_list{varname},...
+                        '_',num2str(yr_start),'-',num2str(yr_end),'.mat'];
     else
         file_save = [BKT_OI('save_driver'),'OI_SST_5X5_',var_list{varname},'_1982-2014.mat'];
     end
