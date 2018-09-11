@@ -1,12 +1,13 @@
-% This function prepares for the enviromental variables to run the model 
+% This function prepares for the enviromental variables to run the model
 % You can choose from two drivers:
 % 1. ERA_interim: 1985-2014 renalysis
 % 2. ICOADS3.0:   1950-1990 climatology on deck (bucket records only)
 % 3. ICOADS3.0:   1973-2002 climatology on deck (bucket records only)
 % 4. NOCS:        1973-2002 climatology all at 10m
-function [true_SST,true_AT,e_air,u_environment,Qs,direct_ratio,zenith_angle] = BKT_MD_STP_3_PREP(mode)
+function [true_SST,true_AT,e_air,u_environment,Qs,direct_ratio,zenith_angle] = BKT_MD_STP_3_PREP(mode,env)
 
-    dir_driver = BKT_OI('save_driver');
+    if ~exist('env','var'), env = 1; end
+    dir_driver = BKT_OI('save_driver',env);
 
     % Prepare for the driver ----------------------------------------------
     % diurnal cycle of SST estimated from buoy data
@@ -46,7 +47,7 @@ function [true_SST,true_AT,e_air,u_environment,Qs,direct_ratio,zenith_angle] = B
         sst  = load([dir_driver,'NOCS_5X5_SST_1973-2002.mat']);
     end
     ssrd = load([dir_driver,'ERI-interim_5X5_ssrd_1985_2014.mat']);
-        
+
 
     dew = dew.clim_final;
     air = air.clim_final;
