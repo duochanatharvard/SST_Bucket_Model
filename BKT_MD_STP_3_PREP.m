@@ -1,26 +1,52 @@
 % This function prepares for the enviromental variables to run the model 
 % You can choose from two drivers:
 % 1. ERA_interim: 1985-2014 renalysis
-% 2. ICOADS3.0:   1950-1990 climatology on deck 
+% 2. ICOADS3.0:   1950-1990 climatology on deck (bucket records only)
+% 3. ICOADS3.0:   1973-2002 climatology on deck (bucket records only)
+% 4. NOCS:        1973-2002 climatology all at 10m
 function [true_SST,true_AT,e_air,u_environment,Qs,direct_ratio,zenith_angle] = BKT_MD_STP_3_PREP(mode)
 
     dir_driver = BKT_OI('save_driver');
 
     % Prepare for the driver ----------------------------------------------
+    % diurnal cycle of SST estimated from buoy data
     if mode == 1,
+        % diurnal cycle from ERA-interim
         dew = load([dir_driver,'ERI-interim_5X5_d2m_1985_2014.mat']);
         air = load([dir_driver,'ERI-interim_5X5_t2m_1985_2014.mat']);
         wnd = load([dir_driver,'ERI-interim_5X5_Wnd_spd_1985_2014.mat']);
-    else
+        ca   = load([dir_driver,'NOCS_5X5_CA_1973-2002.mat']);
+        sst  = load([dir_driver,'OI_SST_5X5_SST_1982-2014.mat']);
+    elseif mode == 2,
+        % diurnal cycle of air variables estimated by ourselves from bucket records
         dew = load([dir_driver,'ICOADS_5X5_DPT_1950-1990.mat']);
         air = load([dir_driver,'ICOADS_5X5_AT_1950-1990.mat']);
         wnd = load([dir_driver,'ICOADS_5X5_WS_1950-1990.mat']);
-        dew.clim_final = dew.clim_final + 273.41;
-        air.clim_final = air.clim_final + 273.41;
+        dew.clim_final = dew.clim_final + 273.15;
+        air.clim_final = air.clim_final + 273.15;
+        ca   = load([dir_driver,'ICOADS_5X5_CA_1950-1990.mat']);
+        sst  = load([dir_driver,'OI_SST_5X5_SST_1982-2014.mat']);
+    elseif mode == 3,
+        % diurnal cycle of air variables estimated by ourselves from bucket records
+        dew = load([dir_driver,'ICOADS_5X5_DPT_1973-2002.mat']);
+        air = load([dir_driver,'ICOADS_5X5_AT_1973-2002.mat']);
+        wnd = load([dir_driver,'ICOADS_5X5_WS_1973-2002.mat']);
+        dew.clim_final = dew.clim_final + 273.15;
+        air.clim_final = air.clim_final + 273.15;
+        ca   = load([dir_driver,'ICOADS_5X5_CA_1973-2002.mat']);
+        sst  = load([dir_driver,'OI_SST_5X5_SST_1982-2014.mat']);
+    elseif mode == 4,
+        % diurnal cycle of air variables estimated by ourselves from bucket records
+        dew = load([dir_driver,'NOCS_5X5_DPT_1973-2002.mat']);
+        air = load([dir_driver,'NOCS_5X5_AT_1973-2002.mat']);
+        wnd = load([dir_driver,'NOCS_5X5_WS_1973-2002.mat']);
+        dew.clim_final = dew.clim_final + 273.35;
+        air.clim_final = air.clim_final + 273.35;
+        ca   = load([dir_driver,'NOCS_5X5_CA_1973-2002.mat']);
+        sst  = load([dir_driver,'NOCS_5X5_SST_1973-2002.mat']);
     end
     ssrd = load([dir_driver,'ERI-interim_5X5_ssrd_1985_2014.mat']);
-    ca   = load([dir_driver,'ICOADS_5X5_CA_1950-1990.mat']);
-    sst  = load([dir_driver,'OI_SST_5X5_SST_1982-2014.mat']);
+        
 
     dew = dew.clim_final;
     air = air.clim_final;
@@ -50,7 +76,9 @@ function [true_SST,true_AT,e_air,u_environment,Qs,direct_ratio,zenith_angle] = B
     clear('mask')
 
     % Prepare for the data fed into the model ---------------------------------
-    true_SST = sst + 273.15;
+    if nanmean(sst(:)) < 200,
+        true_SST = sst + 273.15;
+    end
     true_AT  = air;
     true_DT  = dew;
     u_environment = wnd;
