@@ -202,7 +202,7 @@ function [SST_out,Budget] = BKT_MD_STP_2_MD_WOODEN_GRD_SIZ(true_SST,true_AT,e_ai
 
         SST = SST + dTdt .*dt;
 
-        if rem(t*dt,60) == 0,
+        if rem(t*dt,30) == 0,
             ct_out = ct_out + 1;
             SST_out(:,:,:,:,ct_out) = SST;
         end
