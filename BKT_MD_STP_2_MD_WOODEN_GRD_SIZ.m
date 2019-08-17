@@ -13,7 +13,7 @@ function [SST_out,Budget] = BKT_MD_STP_2_MD_WOODEN_GRD_SIZ(true_SST,true_AT,e_ai
     viscosity     = 1.5e-5;    % Terbulence viscosity: m^2/s
     thickness_water = 0.1;     % Thickness of water: unit: mm
 
-    % Parameters of the bucket -------------------------------------------- 
+    % Parameters of the bucket --------------------------------------------
     cp_bucket         = 1900;
     density_bucket    = 800;
     layers            = 5;
@@ -56,15 +56,15 @@ function [SST_out,Budget] = BKT_MD_STP_2_MD_WOODEN_GRD_SIZ(true_SST,true_AT,e_ai
     Base_long_on     = 1;
     Base_heatflux_on = 1;
 
-    % reduce ambient wind speed ------------------------------------------- 
+    % reduce ambient wind speed -------------------------------------------
     u_reduced_haul = u_environment .* u_shield_haul;
     u_reduced_deck = u_environment .* u_shield_deck;
 
-    % reduce ship speed --------------------------------------------------- 
+    % reduce ship speed ---------------------------------------------------
     s_reduced_haul = s_environment .* s_shield_haul;
     s_reduced_deck = s_environment .* s_shield_deck;
 
-    % effective wind speed for different stage of measurement ------------- 
+    % effective wind speed for different stage of measurement -------------
     u0_haul = sqrt(u_reduced_haul.^2 + s_reduced_haul.^2);
     u0_deck = sqrt(u_reduced_deck.^2 + s_reduced_deck.^2);
 
@@ -84,11 +84,11 @@ function [SST_out,Budget] = BKT_MD_STP_2_MD_WOODEN_GRD_SIZ(true_SST,true_AT,e_ai
         4.3 * ((u0_deck).^(0.6))./((diameter).^(0.4)) .* (Re_deck >= 1000);
     h_base_haul = 4.3 * (u0_haul./diameter).^0.5;
     h_base_deck = 4.3 * (u0_deck./diameter).^0.5;
-    
+
     % ---------------------------------------------------------------------
     % Compute the temperature in the bucket -------------------------------
     time_step = (t_haul + t_deck) / dt;
-    time_out  = (t_haul + t_deck) / 60;
+    time_out  = (t_haul + t_deck) / 30 + 1;
 
     BT_wall     = nan([size(true_SST),layers]);
     BT_base     = nan([size(true_SST),layers]);
@@ -103,7 +103,7 @@ function [SST_out,Budget] = BKT_MD_STP_2_MD_WOODEN_GRD_SIZ(true_SST,true_AT,e_ai
     SST_out    = nan([size(true_SST),time_out]);
     SST_out(:,:,:,:,1) = SST;
     ct_out = 1;
-    
+
     mass_wall = A_cycle * density * thickness_water/1000 .* cp_water;
     mass_base = A_base  * density * thickness_water/1000 .* cp_water;
 
