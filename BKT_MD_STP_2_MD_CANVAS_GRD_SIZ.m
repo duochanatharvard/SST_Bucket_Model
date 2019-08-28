@@ -1,6 +1,15 @@
+% FP95 Canvas bucket model
+% [SST_out] = BKT_MD_STP_2_MD_CANVAS_GRD_SIZ(true_SST,true_AT,e_air,...
+%    u_environment,Cs,direct_ratio,zenith_angle,P)
+% 
+% P.deck_time,  P.solar_shading,   P.cover_top  P.s_environment
+% P.diameter,   P.depth,           P.exp_id,    P.mass_bucket
+
 function [SST_out] = BKT_MD_STP_2_MD_CANVAS_GRD_SIZ(true_SST,true_AT,e_air,...
-    u_environment,s_environment,Cs,direct_ratio,deck_time,solar_shading,...
-    zenith_angle,diameter,depth,exp_id,mass_bucket)
+    u_environment,Cs,direct_ratio,zenith_angle,P)
+    % P.deck_time,    P.solar_shading,   P.cover_top
+    % P.diameter,   P.depth,    P.exp_id,   P.mass_bucket
+    % P.s_environment
 
     % Parameter of computation --------------------------------------------
     dt = 1;                    % unit: s
@@ -9,24 +18,24 @@ function [SST_out] = BKT_MD_STP_2_MD_CANVAS_GRD_SIZ(true_SST,true_AT,e_air,...
     sigma         = 5.67e-8;   % S-B constant
     density       = 1023;      % density of water: kg/m^3
     cp_water      = 4200;      % specific heat of water: J/kg/K
-    % s_environment = 7;       % unit: m/s
+    s_environment = P.s_environment;       % unit: m/s
     viscosity     = 1.5e-5;    % Terbulence viscosity: m^2/s
 
     % Parameters of the bucket --------------------------------------------
     cp_bucket         = 3900;
-    % mass_bucket       = 0.25;
+    mass_bucket       = P.mass_bucket;
     leakage_rate_haul = 0.01;  % unit: m/min
     leakage_rate_deck = 0.005;
-    % diameter        = 0.163;
-    % depth           = 0.14;
+    diameter          = P.diameter;
+    depth             = P.depth;
     albedo_bucket     = 0.2;
-    cover_top         = 1;
-    shading           = solar_shading;
+    cover_top         = P.cover_top;
+    shading           = P.solar_shading;
 
     % Parameter of measurement --------------------------------------------
     t_haul = 60;
-    t_deck = deck_time;
-    if exp_id == 1,
+    t_deck = P.deck_time;
+    if P.exp_id == 1,
         disp('less exposure')
         u_shield_haul = 0.6;
         u_shield_deck = 0.25;

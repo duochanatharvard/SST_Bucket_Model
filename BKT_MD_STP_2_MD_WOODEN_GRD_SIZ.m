@@ -1,6 +1,12 @@
-function [SST_out,Budget] = BKT_MD_STP_2_MD_WOODEN_GRD_SIZ(true_SST,true_AT,e_air,...
-    u_environment,s_environment,Cs,direct_ratio,deck_time,solar_shading,...
-    zenith_angle,thickness)
+% FP95 wooden bucket model:
+% SST_out = BKT_MD_STP_2_MD_WOODEN_GRD_SIZ(true_SST,true_AT,e_air,...
+%                             u_environment,Cs,direct_ratio,zenith_angle,P)  
+% 
+% P.deck_time,    P.solar_shading,   P.s_environment   P.thickness
+
+function SST_out = BKT_MD_STP_2_MD_WOODEN_GRD_SIZ(true_SST,true_AT,e_air,...
+    u_environment,Cs,direct_ratio,zenith_angle,P)  
+    % P.deck_time,    P.solar_shading,   P.s_environment   P.thickness
 
     % Parameter of computation --------------------------------------------
     dt = 0.2;                  % unit: s
@@ -9,7 +15,7 @@ function [SST_out,Budget] = BKT_MD_STP_2_MD_WOODEN_GRD_SIZ(true_SST,true_AT,e_ai
     sigma         = 5.67e-8;   % S-B constant
     density       = 1023;      % density of water: kg/m^3
     cp_water      = 4200;      % specific heat of water: J/kg/K
-    % s_environment = 7;       % ship speed: unit: m/s
+    s_environment = P.s_environment;       % ship speed: unit: m/s
     viscosity     = 1.5e-5;    % Terbulence viscosity: m^2/s
     thickness_water = 0.1;     % Thickness of water: unit: mm
 
@@ -17,21 +23,21 @@ function [SST_out,Budget] = BKT_MD_STP_2_MD_WOODEN_GRD_SIZ(true_SST,true_AT,e_ai
     cp_bucket         = 1900;
     density_bucket    = 800;
     layers            = 5;
-    % thickness         = 0.01;  % unit: m
+    thickness         = P.thickness;  % unit: m
     leakage_rate_haul = 0;  % unit: m/min
     leakage_rate_deck = 0;
     diameter          = 0.25;
     depth             = 0.2;
     albedo_bucket     = 0;
     cover_top         = 0;
-    shading           = solar_shading;
+    shading           = P.solar_shading;
     thc               = 0.3;   % Thermal Conductivity
     dx                = thickness / layers;
     alpha = thc/density_bucket/cp_bucket;
 
     % Parameter of measurement --------------------------------------------
     t_haul = 60;
-    t_deck = deck_time;
+    t_deck = P.deck_time;
     u_shield_haul = 0.6;
     u_shield_deck = 0.4;
     s_shield_haul = 1;
