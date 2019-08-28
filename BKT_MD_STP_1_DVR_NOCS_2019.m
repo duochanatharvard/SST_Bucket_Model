@@ -163,7 +163,7 @@ for i = 1:72
             ds_at  = temp_da_at(i,j,mon) .* shape_at(:,j,mon);
             ds_sst = temp_da_sst(i,j,mon) .* shape_sst(:,j,mon);
             ds = ds_at + nanmean(ds_sst([1:5 21:24]) - ds_at([1:5 21:24]));
-            clim_final(i,j,:,mon) = temp_dm(i,j,mon) + ds;
+            clim_final(i,j,:,mon) = temp_dm_at(i,j,mon) + ds;
         end
     end
 end
