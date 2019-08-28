@@ -18,7 +18,8 @@ function [true_SST,true_AT,e_air,u_environment,Qs,Direct_ratio,zenith_angle] = B
         wnd = load([dir_driver,'ERI-interim_5X5_Wnd_spd_1985_2014.mat']);
         sst  = load([dir_driver,'OI_SST_5X5_SST_1982-2014.mat']);
     elseif mode == 2,
-        % diurnal cycle of air variables estimated by ourselves from bucket records
+        % diurnal cycle of environmental variables estimated by ourselves
+        % from ships taking bucket SSTs
         dew = load([dir_driver,'ICOADS_5X5_DPT_1950-1990.mat']);
         air = load([dir_driver,'ICOADS_5X5_AT_1950-1990.mat']);
         wnd = load([dir_driver,'ICOADS_5X5_WS_1950-1990.mat']);
@@ -26,7 +27,8 @@ function [true_SST,true_AT,e_air,u_environment,Qs,Direct_ratio,zenith_angle] = B
         air.clim_final = air.clim_final + 273.15;
         sst  = load([dir_driver,'OI_SST_5X5_SST_1982-2014.mat']);
     elseif mode == 3,
-        % diurnal cycle of air variables estimated by ourselves from bucket records
+        % diurnal cycle of environmental variables estimated by ourselves
+        % from ships taking bucket SSTs
         dew = load([dir_driver,'ICOADS_5X5_DPT_1973-2002.mat']);
         air = load([dir_driver,'ICOADS_5X5_AT_1973-2002.mat']);
         wnd = load([dir_driver,'ICOADS_5X5_WS_1973-2002.mat']);
@@ -34,13 +36,24 @@ function [true_SST,true_AT,e_air,u_environment,Qs,Direct_ratio,zenith_angle] = B
         air.clim_final = air.clim_final + 273.15;
         sst  = load([dir_driver,'OI_SST_5X5_SST_1982-2014.mat']);
     elseif mode == 4,
-        % diurnal cycle of air variables estimated by ourselves from bucket records
+        % diurnal cycle of environmental variables estimated by ourselves
+        % from ships taking bucket SSTs
         dew = load([dir_driver,'NOCS_5X5_DPT_1973-2002.mat']);
         air = load([dir_driver,'NOCS_5X5_AT_1973-2002.mat']);
         wnd = load([dir_driver,'NOCS_5X5_WS_1973-2002.mat']);
         dew.clim_final = dew.clim_final + 273.35;
         air.clim_final = air.clim_final + 273.35;
         sst  = load([dir_driver,'NOCS_5X5_SST_1973-2002.mat']);
+    elseif mode == 5,
+        % diurnal cycle of environmental variables estimated by ourselves
+        % from ships taking bucket SSTs, 2019 updated version!
+        disp('The most updated version of driver')
+        dew = load([dir_driver,'NOCS_5X5_DPT_1970_2014_new_version_2019.mat']);
+        air = load([dir_driver,'NOCS_5X5_AT_1970_2014_new_version_2019.mat']);
+        wnd = load([dir_driver,'NOCS_5X5_W_1970_2014_new_version_2019.mat']);
+        dew.clim_final = dew.clim_final + 273.35;
+        air.clim_final = air.clim_final + 273.35;
+        sst  = load([dir_driver,'NOCS_5X5_SST_1970_2014_new_version_2019.mat']);
     end
     ssrd = load([dir_driver,'ERI-interim_5X5_ssrd_1985_2014.mat']);
 
