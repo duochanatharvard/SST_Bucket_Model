@@ -4,7 +4,12 @@
 % 2. ICOADS3.0:   1950-1990 climatology on deck (bucket records only)
 % 3. ICOADS3.0:   1973-2002 climatology on deck (bucket records only)
 % 4. NOCS:        1973-2002 climatology all at 10m
-function [true_SST,true_AT,e_air,u_environment,Qs,Direct_ratio,zenith_angle] = BKT_MD_STP_3_PREP_2019(mode,env)
+% 5. NOCS:        diurnal cycles recomputed in 2019, and DA of MAT merged with a shift.
+% 
+% P.average_forcing: output forcing averaged over three latitude bands:
+%                      20S-20N,  20N-40N,  40N-60N;   
+
+function [true_SST,true_AT,e_air,u_environment,Qs,Direct_ratio,zenith_angle] = BKT_MD_STP_3_PREP_2019(mode,env,P)
 
     if ~exist('env','var'), env = 1; end
     dir_driver = BKT_OI('save_driver',env);
@@ -178,4 +183,117 @@ function [true_SST,true_AT,e_air,u_environment,Qs,Direct_ratio,zenith_angle] = B
 
     % Compute the water vapor pressure in the air -------------------------
     e_air = 6.112 .* exp(17.67 .* (true_DT - 273.15)./(true_DT - 29.65));
+
+    % Compute regional average of forcing if necessary --------------------
+    if isfield(P,'average_forcing'),
+        if P.average_forcing == 1,
+            l = isnan(true_SST) | isnan(true_AT) | isnan(e_air) | isnan(u_environment) ...
+                   |  isnan(Qs) | isnan(Direct_ratio) | isnan(zenith_angle);
+
+            % load(['/Volumes/Untitled/01_Research/03_DATA/Bucket_Model/Statistics/',...
+            %       'Ship_speed_7/BCK_2019_DA_LME_shading_0.4_mixing_0_size_100.mat'],'SST_w');
+            % l = isnan(SST_w(:,:,:,:,1));
+            
+            % set locations that can not be run with nan
+            true_SST(l)      = nan;  
+            true_AT(l)       = nan;  
+            e_air(l)         = nan; 
+            u_environment(l) = nan;
+            Qs(l)            = nan;
+            Direct_ratio(l)  = nan;
+            zenith_angle(l)  = nan;
+
+            % reverse southern hemisphere to be averaged by month
+            true_SST(:,1:18,:,:)      = true_SST(:,1:18,:,[7:12 1:6]);
+            true_AT(:,1:18,:,:)       = true_AT(:,1:18,:,[7:12 1:6]);
+            e_air(:,1:18,:,:)         = e_air(:,1:18,:,[7:12 1:6]);
+            u_environment(:,1:18,:,:) = u_environment(:,1:18,:,[7:12 1:6]);
+            Qs(:,1:18,:,:)            = Qs(:,1:18,:,[7:12 1:6]);
+            Direct_ratio(:,1:18,:,:)  = Direct_ratio(:,1:18,:,[7:12 1:6]);
+            zenith_angle(:,1:18,:,:)  = zenith_angle(:,1:18,:,[7:12 1:6]);
+            
+            % average input fields by latitude bands
+            lat = -87.5:5:87.5;
+            
+            disp('Conputing regional averaged forcing ... ')
+            for ct = 1:3
+                mask = zeros(72,36);
+                switch ct,
+                    case 1,
+                        mask(:,[15:22]) = 1;    % 20S-20N
+                    case 2,
+                        mask(:,[23:26]) = 1;    % 20N-40N
+                    case 3,
+                        mask(:,[27:30]) = 1;    % 40N-60N
+                    otherwise,
+                        error('Invalid region number!')
+                end
+                true_SST_avg(ct,1,:,:)      = BCK_mask_mean(true_SST,lat,mask);
+                true_AT_avg(ct,1,:,:)       = BCK_mask_mean(true_AT,lat,mask);
+                e_air_avg(ct,1,:,:)         = BCK_mask_mean(e_air,lat,mask);
+                u_environment_avg(ct,1,:,:) = BCK_mask_mean(u_environment,lat,mask);
+                Qs_avg(ct,1,:,:)            = BCK_mask_mean(Qs,lat,mask);
+                Direct_ratio_avg(ct,1,:,:)  = BCK_mask_mean(Direct_ratio,lat,mask);
+                zenith_angle_avg(ct,1,:,:)  = BCK_mask_mean(zenith_angle,lat,mask);
+            end
+            
+            % prepare for outputs
+            true_SST        = true_SST_avg;
+            true_AT         = true_AT_avg;
+            e_air           = e_air_avg;
+            u_environment   = u_environment_avg;
+            Qs              = Qs_avg;
+            Direct_ratio    = Direct_ratio_avg;
+            zenith_angle    = zenith_angle_avg;
+       end
+    end                       
 end
+
+
+function [out,out_std,out_num] = BCK_mask_mean(input,lat,mask,un)
+
+    if  nargin < 4
+        un_on = 0;
+    else
+        un_on = 1;
+    end
+
+    size_temp = size(input);
+
+    if(min(size(lat)) == 1)
+        lat = repmat(reshape(lat,1,numel(lat)),size(input,1),1);
+    end
+
+    weigh = cos(lat*pi/180);
+
+    WEIGH = repmat(weigh,[1 1 size_temp(3:end)]);
+    MASK  = repmat(mask ,[1 1 size_temp(3:end)]);
+
+    if un_on,
+        weigh_2 = (1 ./ (real(un) + 1));
+        WEI     = MASK .* WEIGH .* weigh_2;
+        IN      = input .* WEIGH .* weigh_2;
+    else
+        WEI   = MASK .* WEIGH;
+        IN    = input .* WEIGH;
+    end
+
+    IN(MASK == 0) = NaN;
+    WEI(isnan(IN)) = 0;
+
+    out = nansum(nansum(IN,1),2)./nansum(nansum(WEI,1),2);
+
+    if un_on,
+        un(isnan(IN)) = NaN;
+        out_std = squeeze(sqrt( nansum(nansum(un.^2 .* WEI.^2 ,1),2) ./ (nansum(nansum(WEI ,1),2).^2)));
+    else
+        clim = repmat(out,[size_temp(1:2) ones(1,size(size_temp,2)-2)]);
+        out_std = squeeze(sqrt( nansum(nansum((IN - clim).^2 .* WEI ,1),2) ./...
+            (nansum(nansum(WEI ,1),2) - nansum(nansum(WEI.^2 ,1),2)./nansum(nansum(WEI ,1),2))  ));
+    end
+
+    out = squeeze(out);
+    out_num = squeeze(nansum(nansum(isnan(IN)==0,1),2));
+
+end
+
