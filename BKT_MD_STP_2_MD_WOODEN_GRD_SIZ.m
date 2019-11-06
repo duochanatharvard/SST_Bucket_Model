@@ -118,6 +118,8 @@ function SST_out = BKT_MD_STP_2_MD_WOODEN_GRD_SIZ(true_SST,true_AT,e_air,...
     Cs_diffuse = Cs .* (1 - direct_ratio);
     Cs_direct  = Cs .* direct_ratio;
     temp_cycle_direct  = A_cycle ./pi .* (Cs_direct ./ cos(zenith_angle) .* sin(zenith_angle) .* (1-albedo_bucket));
+    l          = abs(zenith_angle - pi/2) < 0.05   &  Cs_direct < 30;
+    temp_cycle_direct(l) = 0;
     temp_cycle_diffuse = A_cycle .* (Cs_diffuse ./2 .* (1-albedo_bucket));
     temp_base  = A_base .* (Cs .* (1-cover_top));
 
@@ -213,7 +215,7 @@ function SST_out = BKT_MD_STP_2_MD_WOODEN_GRD_SIZ(true_SST,true_AT,e_air,...
             SST_out(:,:,:,:,ct_out) = SST;
         end
 
-        if rem(t*dt,10) == 0,
+        if rem(t*dt,60) == 0,
             disp([num2str(t*dt),' seconds finished'])
         end
     end
