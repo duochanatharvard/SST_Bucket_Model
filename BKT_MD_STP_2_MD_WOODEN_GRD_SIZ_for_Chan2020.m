@@ -2,7 +2,7 @@
 % SST_out = BKT_MD_STP_2_MD_WOODEN_GRD_SIZ(true_SST,true_AT,e_air,...
 %                             u_environment,Cs,direct_ratio,zenith_angle,P)  
 % 
-% P.deck_time,    P.solar_shading,   P.s_environment   P.thickness
+% P.deck_time   P.solar_shading   P.s_environment   P.thickness   P.wind_experience
 
 function SST_out = BKT_MD_STP_2_MD_WOODEN_GRD_SIZ_for_Chan2020(true_SST,true_AT,e_air,...
     u_environment,Cs,direct_ratio,zenith_angle,P,PP)  
@@ -26,9 +26,9 @@ function SST_out = BKT_MD_STP_2_MD_WOODEN_GRD_SIZ_for_Chan2020(true_SST,true_AT,
     thickness         = P.thickness;  % unit: m
     leakage_rate_haul = 0;  % unit: m/min
     leakage_rate_deck = 0;
-    diameter          = 0.25;
-    depth             = 0.2;
-    albedo_bucket     = 0.2;
+    diameter          = P.diamter;  % 0.25;
+    depth             = P.depth;    % 0.2
+    albedo_bucket     = 0;
     cover_top         = 0;
     shading           = P.solar_shading;
     thc               = 0.3;   % Thermal Conductivity
@@ -42,6 +42,10 @@ function SST_out = BKT_MD_STP_2_MD_WOODEN_GRD_SIZ_for_Chan2020(true_SST,true_AT,
     u_shield_deck = P.wind_experience;
     s_shield_haul = P.wind_experience;
     s_shield_deck = P.wind_experience;
+%     u_shield_haul = 0.6;
+%     u_shield_deck = 0.4;
+%     s_shield_haul = 1;
+%     s_shield_deck = 0.67;
     water_amount = 35;     % in the thermalmeter, unit: gram
 
     % Term Management -----------------------------------------------------
