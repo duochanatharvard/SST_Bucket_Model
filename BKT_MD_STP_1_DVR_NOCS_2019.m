@@ -1,12 +1,12 @@
 % This file prepares the hourly climatology of t10m, d10m, cloud cover, and 
 % 10m wind speed from 30yr monthly NOCS dataset (1973-2002).
-% 
+%
 % For AT, DPT and W, I add 45-yr (1970-2014) diurnal cycle estimates
 % from ICOADS ships taking bucket SSTs to drive the bucket model.
-% 
-% Need to figure out what are 
+%
+% Need to figure out what are
 
-% 
+%
 % The output units are:
 % t10m(C), d10m(C), sst(C), and wind speed 10m (m/s)
 %
@@ -23,30 +23,30 @@ dir_load  = BKT_OI('load_NOCS');
 var_list = {'at','wspd','qair','sst'};
 
 for var_id = 1:4
-    
+
     varname = var_list{var_id};
     file_load = [dir_load,'NOCS_5X5_',varname,'_1973_2002.mat'];
     load(file_load);
     temp = clim_final;
     clear('clim_final')
-    
+
     if var_id == 3,
-        
+
         % for consistency, solve for the dew point temperature
         temp = temp / 1000;
-        
-        % Saturation vapor pressure 
+
+        % Saturation vapor pressure
         f_es_t = @(t) 6.112 .* exp(17.67 .* (t-273.15)./(t-29.65));
-        
+
         % saturation specific humidity from temperature
         f_q_t = @(t,p) f_es_t(t) .* 0.622 ./ (p - 0.378 * f_es_t(t));
-        
+
         % load the surface pressure
         file_load = [dir_load,'NOCS_5X5_slp_1973_2002.mat'];
         load(file_load);
         p = clim_final;
         clear('clim_final');
-        
+
         % solve for dew-point temperature temp_x
         temp_x = zeros(size(temp)) + 273.15;
 
@@ -57,9 +57,9 @@ for var_id = 1:4
             err =  max(abs(q_x(:) - temp(:)));
         end
         temp = temp_x - 273.15;
-        
+
     end
-    
+
     CLIM_DM(:,:,:,var_id) = temp;
 end
 
@@ -72,7 +72,7 @@ var_list = {'AT','W','DPT','SST'};
 CLIM_DA = nan(72,36,12,4);
 SHP_DA  = nan(24,36,12,4);
 for var_id = [1:4]
-    
+
     clear('a')
     if var_id ~=4,
         file_load = [dir_ICOADS,'Diurnal_Shape_ship_bucket_',var_list{var_id},'.mat'];
@@ -86,7 +86,7 @@ for var_id = [1:4]
         file_load = [dir_ICOADS,'Diurnal_Shape_buoy_SST.mat'];
         a = load(file_load);
         SHP_DA(:,:,:,var_id)  = a.Diurnal_Shape;
-        
+
         file_load = [dir_ICOADS,'Diurnal_Amplitude_buoy_SST_1990_2014_climatology.mat'];
         a = load(file_load);
         CLIM_DA(:,:,:,var_id) = a.Diurnal_clim_buoy_1990_2014;
@@ -98,19 +98,19 @@ end
 % combine daily mean with the diurnal cycle ##
 % ############################################
 for var_id = [2:4]
-    
+
     % **********************************
     % read data and the diurnal shape **
     % **********************************
     shape = SHP_DA(:,:,:,var_id);
-    
+
     % ***************************************
     % Get the daily mean and diurnal cycle **
     % ***************************************
     clear('temp_dm','temp_da')
     temp_dm = CLIM_DM(:,:,:,var_id);
     temp_da = CLIM_DA(:,:,:,var_id);
-    
+
     % **************************************
     % Combine the two components together **
     % **************************************
@@ -123,7 +123,7 @@ for var_id = [2:4]
             end
         end
     end
-    
+
     % ************
     % save data **
     % ************
@@ -173,4 +173,3 @@ end
 % ************
 file_save = [BKT_OI('save_driver',0),'NOCS_5X5_',var_list{var_id},'_1970_2014_new_version_2019.mat'];
 save(file_save,'clim_final','-v7.3');
-
