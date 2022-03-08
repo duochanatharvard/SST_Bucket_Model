@@ -16,13 +16,13 @@ function [true_SST,true_AT,e_air,u_environment,Qs,Direct_ratio,zenith_angle] = B
 
     % Prepare for the driver ----------------------------------------------
     % diurnal cycle of SST estimated from buoy data
-    if mode == 1,
+    if mode == 1
         % diurnal cycle from ERA-interim
         dew = load([dir_driver,'ERI-interim_5X5_d2m_1985_2014.mat']);
         air = load([dir_driver,'ERI-interim_5X5_t2m_1985_2014.mat']);
         wnd = load([dir_driver,'ERI-interim_5X5_Wnd_spd_1985_2014.mat']);
         sst  = load([dir_driver,'OI_SST_5X5_SST_1982-2014.mat']);
-    elseif mode == 2,
+    elseif mode == 2
         % diurnal cycle of environmental variables estimated by ourselves
         % from ships taking bucket SSTs
         dew = load([dir_driver,'ICOADS_5X5_DPT_1950-1990.mat']);
@@ -31,7 +31,7 @@ function [true_SST,true_AT,e_air,u_environment,Qs,Direct_ratio,zenith_angle] = B
         dew.clim_final = dew.clim_final + 273.15;
         air.clim_final = air.clim_final + 273.15;
         sst  = load([dir_driver,'OI_SST_5X5_SST_1982-2014.mat']);
-    elseif mode == 3,
+    elseif mode == 3
         % diurnal cycle of environmental variables estimated by ourselves
         % from ships taking bucket SSTs
         dew = load([dir_driver,'ICOADS_5X5_DPT_1973-2002.mat']);
@@ -40,40 +40,46 @@ function [true_SST,true_AT,e_air,u_environment,Qs,Direct_ratio,zenith_angle] = B
         dew.clim_final = dew.clim_final + 273.15;
         air.clim_final = air.clim_final + 273.15;
         sst  = load([dir_driver,'OI_SST_5X5_SST_1982-2014.mat']);
-    elseif mode == 4,
+    elseif mode == 4
         % diurnal cycle of environmental variables estimated by ourselves
         % from ships taking bucket SSTs
         dew = load([dir_driver,'NOCS_5X5_DPT_1973-2002.mat']);
         air = load([dir_driver,'NOCS_5X5_AT_1973-2002.mat']);
         wnd = load([dir_driver,'NOCS_5X5_WS_1973-2002.mat']);
-        dew.clim_final = dew.clim_final + 273.35;
-        air.clim_final = air.clim_final + 273.35;
+        dew.clim_final = dew.clim_final + 273.15;
+        air.clim_final = air.clim_final + 273.15;
         sst  = load([dir_driver,'NOCS_5X5_SST_1973-2002.mat']);
-    elseif mode == 5,
+    elseif mode == 5
         % diurnal cycle of environmental variables estimated by ourselves
         % from ships taking bucket SSTs, 2019 updated version!
         disp('The most updated version of driver')
         dew = load([dir_driver,'NOCS_5X5_DPT_1970_2014_new_version_2019.mat']);
         air = load([dir_driver,'NOCS_5X5_AT_1970_2014_new_version_2019.mat']);
         wnd = load([dir_driver,'NOCS_5X5_W_1970_2014_new_version_2019.mat']);
-        dew.clim_final = dew.clim_final + 273.35;
-        air.clim_final = air.clim_final + 273.35;
+        dew.clim_final = dew.clim_final + 273.15;
+        air.clim_final = air.clim_final + 273.15;
         sst  = load([dir_driver,'NOCS_5X5_SST_1970_2014_new_version_2019.mat']);
     end
     ssrd = load([dir_driver,'ERI-interim_5X5_ssrd_1985_2014.mat']);
 
 
-    dew = dew.clim_final;
-    air = air.clim_final;
-    wnd = wnd.clim_final;
+    dew  = dew.clim_final;
+    air  = air.clim_final;
+    wnd  = wnd.clim_final;
     ssrd = ssrd.clim_final;
-    sst = sst.clim_final;
+    sst  = sst.clim_final;
 
-    mask_dew = mean(mean(dew,4),3);
-    mask_air = mean(mean(air,4),3);
-    mask_wnd = mean(mean(wnd,4),3);
+%     dew  = get_values_from_neighbors(dew,8);
+%     air  = get_values_from_neighbors(air,8);
+%     wnd  = get_values_from_neighbors(wnd,8);
+%     ssrd = get_values_from_neighbors(ssrd,8);
+%     sst  = get_values_from_neighbors(sst,8);
+
+    mask_dew  = mean(mean(dew,4),3);
+    mask_air  = mean(mean(air,4),3);
+    mask_wnd  = mean(mean(wnd,4),3);
     mask_ssrd = mean(mean(ssrd,4),3);
-    mask_sst = mean(mean(sst,4),3);
+    mask_sst  = mean(mean(sst,4),3);
 
     mask = ~isnan(mask_dew) & ~isnan(mask_air) & ~isnan(mask_ssrd) &...
         ~isnan(mask_wnd) & ~isnan(mask_sst);
@@ -88,17 +94,17 @@ function [true_SST,true_AT,e_air,u_environment,Qs,Direct_ratio,zenith_angle] = B
     clear('mask')
 
     % Prepare for the data fed into the model ---------------------------------
-    if nanmean(sst(:)) < 200,
+    if nanmean(sst(:)) < 200
         true_SST = sst + 273.15;
     end
-    true_AT  = air;
-    true_DT  = dew;
+    true_AT       = air;
+    true_DT       = dew;
     u_environment = wnd;
-    Qs       = ssrd;
+    Qs            = ssrd;
     clear('air','dew','sst','wnd','ca','ssrd')
 
     % Compute zenith angle ------------------------------------------------
-    if 0,
+    if 0
         clear('zenith_angle')
         zenith_angle = nan(size(sst));
         for lon = 1
@@ -131,7 +137,7 @@ function [true_SST,true_AT,e_air,u_environment,Qs,Direct_ratio,zenith_angle] = B
     zenith_angle = zenith_angle /180 *pi;
 
     % Compute ratio of ground insolation to toa insolation ----------------
-    if 0,
+    if 1
         mon_list = [31 28 31 30 31 30 31 31 30 31 30 31];
         day_list = [0 cumsum(mon_list)];
         td       = (day_list(1:end-1) + day_list(2:end))/2;
@@ -175,7 +181,7 @@ function [true_SST,true_AT,e_air,u_environment,Qs,Direct_ratio,zenith_angle] = B
             end
         end
         Direct_ratio(Direct_ratio < 0) = 0;
-        save([dir_driver,'Direct_ratio.mat'],'Direct_ratio','-v7.3');
+        % save([dir_driver,'Direct_ratio.mat'],'Direct_ratio','-v7.3');
     else
         load([dir_driver,'Direct_ratio.mat']);
     end
@@ -185,8 +191,8 @@ function [true_SST,true_AT,e_air,u_environment,Qs,Direct_ratio,zenith_angle] = B
     e_air = 6.112 .* exp(17.67 .* (true_DT - 273.15)./(true_DT - 29.65));
 
     % Compute regional average of forcing if necessary --------------------
-    if isfield(P,'average_forcing'),
-        if P.average_forcing == 1,
+    if isfield(P,'average_forcing')
+        if P.average_forcing == 1
             l = isnan(true_SST) | isnan(true_AT) | isnan(e_air) | isnan(u_environment) ...
                    |  isnan(Qs) | isnan(Direct_ratio) | isnan(zenith_angle);
 
@@ -216,16 +222,16 @@ function [true_SST,true_AT,e_air,u_environment,Qs,Direct_ratio,zenith_angle] = B
             lat = -87.5:5:87.5;
             
             disp('Conputing regional averaged forcing ... ')
-            for ct = 1:3
+            for ct = 1:2%3
                 mask = zeros(72,36);
-                switch ct,
-                    case 1,
+                switch ct
+                    case 1
                         mask(:,[15:22]) = 1;    % 20S-20N
-                    case 2,
+                    case 2
                         mask(:,[23:26]) = 1;    % 20N-40N
-                    case 3,
+                    case 3
                         mask(:,[27:30]) = 1;    % 40N-60N
-                    otherwise,
+                    otherwise
                         error('Invalid region number!')
                 end
                 true_SST_avg(ct,1,:,:)      = BCK_mask_mean(true_SST,lat,mask);
@@ -249,6 +255,14 @@ function [true_SST,true_AT,e_air,u_environment,Qs,Direct_ratio,zenith_angle] = B
     end                       
 end
 
+function temp = get_values_from_neighbors(temp,N)
+    for i = 1:N
+        t1   = temp([end 1:end-1],:,:,:);
+        temp(isnan(temp)) = t1(isnan(temp));
+        t1   = temp([2:end 1],:,:,:);
+        temp(isnan(temp)) = t1(isnan(temp));
+    end
+end
 
 function [out,out_std,out_num] = BCK_mask_mean(input,lat,mask,un)
 
