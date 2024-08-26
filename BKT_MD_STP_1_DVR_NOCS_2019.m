@@ -13,7 +13,6 @@
 % These outputs are further processed by "BKT_MD_STP_1_DVR_SUM.m"
 % in order to get a 5x5 value with data rearranged by hours.
 
-
 % ##########################################
 %  Load monthly climatology from NOCSv2   ##
 % ##########################################
@@ -30,7 +29,7 @@ for var_id = 1:4
     temp = clim_final;
     clear('clim_final')
 
-    if var_id == 3,
+    if var_id == 3
 
         % for consistency, solve for the dew point temperature
         temp = temp / 1000;

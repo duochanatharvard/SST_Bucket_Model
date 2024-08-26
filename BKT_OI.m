@@ -1,27 +1,26 @@
-function dir = BKT_OI(input,env)
+function dir = BKT_OI(input)
 
-    if strcmp(input,'load_ERA'),
+    if strcmp(input,'home')
+        dir = ['/Users/dc1e23/Dropbox/',...
+                    '------------ Git_code ----------------/',...
+                    'ZZ_Completed/SST_Bucket_Model/'];
+
+    elseif strcmp(input,'load_ERA')
         dir = '/Volumes/My Passport Pro/ICOADS_3.0/';
 
     elseif strcmp(input,'save_driver')
-        if env == 1,
-            dir = '/n/home10/dchan/script/Peter/Hvd_SST/SST_Bucket_Model/Driver/';
-        else
-            dir = '/Users/zen/Research/Git_Code/SST_Bucket_Model/Driver/';
-        end
+        dir = [BKT_OI('home'),'Driver/'];
+
     elseif strcmp(input,'load_OI_SST')
         dir = '/Volumes/My Passport Pro/ICOADS_RE/Step_Miscellaneous_ICOADS_RE/';
 
     elseif strcmp(input,'load_ICOADS')
-        dir = '/Users/zen/Research/Git_Code/SST_Bucket_Model/ICOADS/';
+        dir = [BKT_OI('home'), 'ICOADS/'];
 
     elseif strcmp(input,'save_output')
-        if env == 1,
-            dir = '/n/home10/dchan/script/Peter/Hvd_SST/SST_Bucket_Model/Outputs/';
-        else
-            dir = '/Users/zen/Research/Git_Code/SST_Bucket_Model/Outputs/';
-        end
+        dir = [BKT_OI('home'),'Outputs/'];
 
     elseif strcmp(input,'load_NOCS')
-        dir = '/Users/zen/Research/Git_Code/SST_Bucket_Model/NOCSV2/';
+        dir = [BKT_OI('home'),'NOCSV2/'];
     end
+end
